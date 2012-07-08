@@ -66,6 +66,7 @@
     <addaction name="actionSave"/>
     <addaction name="actionOpen"/>
     <addaction name="actionOpen_Tab"/>
+    <addaction name="actionClose_Tab"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -98,6 +99,11 @@
   <action name="actionOpen_Tab">
    <property name="text">
     <string>Open Tab</string>
+   </property>
+  </action>
+  <action name="actionClose_Tab">
+   <property name="text">
+    <string>Close Tab</string>
    </property>
   </action>
  </widget>
