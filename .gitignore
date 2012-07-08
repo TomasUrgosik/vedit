@@ -1,3 +1,7 @@
 *.pyc
 
 *.swp
+
+editview.py
+
+mainwindow.py

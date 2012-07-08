@@ -13,6 +13,7 @@ class EditView(QWidget, Ui_EditView):
         super(EditView, self).__init__(parent)
         self.setupUi(self)
         self.saved = None
+        self.path = None
 
     def setPath(self, path):
         self.path = path
@@ -25,36 +26,58 @@ class EditView(QWidget, Ui_EditView):
 
     def getSaved(self):
         return self.saved
-
+    
+    def save(self):
+        try:
+            f = codecs.open(self.getPath(), 'w', 'utf-8')
+            f.write(self.textEdit.toPlainText())
+            self.setSaved(True)
+            f.close()
+        except IOError as e:
+            self.saveAs()
+    
+    def saveAs(self):
+        self.setPath(QFileDialog.getSaveFileName(self)[0])
+        if self.getPath() is not u'':
+            self.save()
+    
+    def open(self):
+        self.setPath(QFileDialog.getOpenFileName(self)[0])
+        f = codecs.open(self.getPath(), 'r', 'utf-8')
+        self.textEdit.setPlainText(f.read())
+        f.close
+    
+    def openTab(self): #TODO
+        pass
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
-        self.tab_list = {}
+        self.addTab()
         self.actionNew.triggered.connect(self.addTab)
-        self.actionSave_As.triggered.connect(self.saveActiveTabAs)
+        self.actionSave_As.triggered.connect(self.saveAs)
+        self.actionSave.triggered.connect(self.save)
+        self.actionOpen.triggered.connect(self.open)
+        self.actionOpen_Tab.triggered.connect(self.openTab)
 
     def addTab(self):
         view = EditView()
         x = self.tabWidget.addTab(view, u"")
         self.tabWidget.setTabText(x, unicode(x))
-        #print(self.tabWidget.count())
+        return view
+       
+    def save(self):
+        self.tabWidget.currentWidget().save()
 
-    def closeTab(i):
-        pass
-    def saveActiveTabAs(self):
-        view = self.tabWidget.currentWidget()
-        filename = QFileDialog.getSaveFileName(self)[0]
-        if filename is not u'':
-            f = codecs.open(filename, 'w', 'utf-8')
-            f.write(view.textEdit.toPlainText())
-            f.close()
-            print  self.tabWidget.currentWidget().getSaved()
-            if self.tabWidget.currentWidget().getSaved() == True:
-                print 'Alredy Saved'
-            else:
-                self.tabWidget.currentWidget().setSaved(True)
+    def saveAs(self):
+        self.tabWidget.currentWidget().saveAs()
+
+    def open(self):
+        self.tabWidget.currentWidget().open()
+
+    def openTab(self):
+        pass #TODO
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
