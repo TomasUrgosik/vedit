@@ -3,12 +3,23 @@
 
 import sys
 import codecs
-from PySide.QtGui import QFileDialog, QMainWindow, QApplication, QWidget, QMessageBox
+from PySide.QtGui import QFileDialog, QMainWindow, QApplication, QWidget, QMessageBox, QDialog
 from PySide import QtCore
 from mainwindow import Ui_MainWindow
 from editview import Ui_EditView
+from finddialog import Ui_FindDialog
+
+class FindDialog(QDialog, Ui_FindDialog): #TODO
+    """Find&Replace dialog"""
+    def __init__(self, parent=None):
+        super(FindDialog, self).__init__(parent)
+        self.setupUi(self)
+
+class AboutDialog(QDialog, Ui_AboutDialog): #TODO
+    pass
 
 class EditView(QWidget, Ui_EditView):
+    """Thing inside tab, where you place text ;-)"""
     def __init__(self, parent=None):
         super(EditView, self).__init__(parent)
         self.setupUi(self)
@@ -19,18 +30,23 @@ class EditView(QWidget, Ui_EditView):
 
 
     def textChanged(self):
+        """Changes Saved(Bool) flag to False when text is changed"""
         self.setSaved(False)
     
     def setIndex(self, index):
+        """Setting position of tab in tabbar"""
         self.index = index
 
     def getIndex(self):
+        """Obtaining position of tab in tabbar"""
         return self.index
 
     def setPath(self, path):
+        """Setting path of edited file"""
         self.path = path
     
     def getTabName(self):
+        """Returns last part of path(For tab name)"""
         try:
             if self.getSaved() is False:
                 return self.getPath().split('/')[-1] + ' *'
@@ -40,16 +56,20 @@ class EditView(QWidget, Ui_EditView):
             return u'Empty'
 
     def getPath(self):
+        """Sets file path"""
         return self.path
 
-    def setSaved(self, saved): 
+    def setSaved(self, saved):
+        """Set saved(Bool) status"""
         self.saved = saved
         window.updateTabName(self)
 
     def getSaved(self):
+        """"Return if file is Saved"""
         return self.saved
     
     def save(self):
+        """Saves edited file"""
         try:
             f = codecs.open(self.getPath(), 'w', 'utf-8')
             f.write(self.textEdit.toPlainText())
@@ -59,6 +79,7 @@ class EditView(QWidget, Ui_EditView):
             self.saveAs()
     
     def saveAs(self):
+        """Saves edited file as"""
         self.setPath(QFileDialog.getSaveFileName(self)[0])
         if self.getPath() is not u'':
             self.save()
@@ -66,6 +87,7 @@ class EditView(QWidget, Ui_EditView):
             self.setSaved(False)
     
     def open(self):
+        """Open File in current tab"""
         try:
             self.setPath(QFileDialog.getOpenFileName(self)[0])
             f = codecs.open(self.getPath(), 'r', 'utf-8')
@@ -86,6 +108,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionOpen.triggered.connect(self.open)
         self.actionOpen_Tab.triggered.connect(self.openTab)
         self.actionClose_Tab.triggered.connect(self.closeTab)
+        self.actionFind.triggered.connect(self.find)
+
+    def find(self):
+        self.findDialog = FindDialog()
+        self.findDialog.show()
+        self.findDialog.raise_()
+        self.findDialog.activateWindow()
 
     def addTab(self):
         view = EditView()
@@ -99,6 +128,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def saveAs(self):
         self.tabWidget.currentWidget().saveAs()
         self.updateTabName(self.tabWidget.currentWidget())
+
     def open(self):
         self.tabWidget.currentWidget().open()
         self.updateTabName(self.tabWidget.currentWidget())
@@ -127,6 +157,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 raise ValueError(confirm)
     
     def updateTabName(self, tab):
+        """Updates name in tabbar"""
         self.tabWidget.setTabText(self.tabWidget.indexOf(tab), self.tabWidget.currentWidget().getTabName())
 
     
