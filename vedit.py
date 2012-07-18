@@ -8,6 +8,7 @@ from PySide import QtCore
 from mainwindow import Ui_MainWindow
 from editview import Ui_EditView
 from finddialog import Ui_FindDialog
+from aboutdialog import Ui_AboutDialog
 
 class FindDialog(QDialog, Ui_FindDialog): #TODO
     """Find&Replace dialog"""
